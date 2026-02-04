@@ -2,601 +2,609 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <title>SpO₂ Mobile Demo</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>SpO2 Demo</title>
     <style>
       :root {
         --bg: #0b1220;
-        --card: #0a0f1c;
-        --muted: #94a3b8;
-        --text: #e5e7eb;
-        --line: rgba(148, 163, 184, 0.18);
-        --accent1: #22c55e;
-        --accent2: #14b8a6;
+        --text: rgba(255, 255, 255, 0.92);
+        --muted: rgba(255, 255, 255, 0.65);
+        --muted2: rgba(255, 255, 255, 0.5);
         --danger: #ef4444;
-        --shadow: 0 16px 60px rgba(0, 0, 0, 0.45);
-        --radius: 22px;
+        --shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+        --radius: 16px;
+        --accent1: #22c55e;
+        --accent2: #38bdf8;
+        --line: rgba(255, 255, 255, 0.12);
       }
 
       * {
         box-sizing: border-box;
       }
-      html,
-      body {
-        height: 100%;
-      }
+
       body {
         margin: 0;
-        font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial,
-          sans-serif;
+        font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto,
+          Helvetica, Arial;
         background: radial-gradient(
-            1200px 800px at 30% 20%,
+            1200px 600px at 20% 10%,
             rgba(34, 197, 94, 0.12),
-            transparent 55%
-          ),
-          radial-gradient(
-            900px 600px at 80% 10%,
-            rgba(20, 184, 166, 0.1),
             transparent 60%
           ),
-          #060a14;
+          radial-gradient(
+            900px 500px at 85% 20%,
+            rgba(56, 189, 248, 0.1),
+            transparent 55%
+          ),
+          var(--bg);
         color: var(--text);
-        display: grid;
-        place-items: center;
-        padding: 24px;
-      }
-
-      /* Force mobile app size on ALL screens (desktop included) */
-      .phone {
-        width: 390px; /* iPhone 12-ish */
-        max-width: 92vw; /* still fits small screens */
-        height: 820px; /* mobile-like height */
-        max-height: 92vh;
-        background: linear-gradient(
-          180deg,
-          rgba(255, 255, 255, 0.02),
-          rgba(255, 255, 255, 0)
-        );
-        border: 1px solid rgba(255, 255, 255, 0.08);
-        border-radius: 34px;
-        box-shadow: var(--shadow);
-        overflow: hidden;
-        position: relative;
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 22px;
       }
 
       .app {
-        height: 100%;
-        display: flex;
-        flex-direction: column;
-        background: rgba(2, 6, 23, 0.85);
-        backdrop-filter: blur(10px);
+        width: min(1040px, 100%);
+        position: relative;
       }
 
-      /* Top bar */
-      .topbar {
-        padding: 18px 18px 12px 18px;
-        border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+      .glass {
+        background: linear-gradient(
+          180deg,
+          rgba(255, 255, 255, 0.08),
+          rgba(255, 255, 255, 0.03)
+        );
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        box-shadow: var(--shadow);
+        border-radius: var(--radius);
+        overflow: hidden;
+      }
+
+      header {
+        padding: 22px 24px;
         display: flex;
         align-items: center;
         justify-content: space-between;
-        gap: 10px;
+        border-bottom: 1px solid var(--line);
       }
-      .brand {
-        display: flex;
-        flex-direction: column;
-        line-height: 1.1;
+      header h1 {
+        font-size: 16px;
+        margin: 0;
+        letter-spacing: 0.6px;
+        font-weight: 650;
       }
-      .brand .title {
-        font-weight: 900;
-        letter-spacing: 0.2px;
-      }
-      .brand .subtitle {
+
+      header .pill {
+        display: inline-flex;
+        gap: 8px;
+        align-items: center;
+        padding: 7px 12px;
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.07);
+        border: 1px solid rgba(255, 255, 255, 0.12);
         color: var(--muted);
         font-size: 12px;
-      }
-
-      .pill {
-        padding: 8px 10px;
-        border-radius: 999px;
-        border: 1px solid rgba(255, 255, 255, 0.1);
-        background: rgba(15, 23, 42, 0.55);
-        font-size: 12px;
-        color: #cbd5e1;
         white-space: nowrap;
       }
-      .pill b {
-        color: #e2e8f0;
+      .dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 999px;
+        background: var(--accent1);
+        box-shadow: 0 0 0 4px rgba(34, 197, 94, 0.18);
       }
 
-      /* Pages */
       .pages {
-        flex: 1;
-        overflow: hidden;
         position: relative;
+        height: 620px;
       }
       .page {
         position: absolute;
         inset: 0;
-        padding: 18px;
-        overflow-y: auto;
-        transform: translateX(110%);
-        opacity: 0;
-        transition: transform 250ms ease, opacity 250ms ease;
+        padding: 26px;
+        display: none;
+        animation: fadeIn 240ms ease-out;
       }
       .page.active {
-        transform: translateX(0%);
-        opacity: 1;
+        display: block;
       }
       .page.left {
-        transform: translateX(-110%);
-        opacity: 0;
+        transform: translateX(-20px);
+        opacity: 0.2;
       }
 
-      /* Cards */
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(8px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0px);
+        }
+      }
+
+      .grid {
+        display: grid;
+        grid-template-columns: 1.2fr 0.8fr;
+        gap: 16px;
+        height: 100%;
+      }
+
       .card {
-        background: rgba(11, 18, 32, 0.65);
-        border: 1px solid rgba(255, 255, 255, 0.08);
+        background: rgba(255, 255, 255, 0.06);
+        border: 1px solid rgba(255, 255, 255, 0.12);
         border-radius: var(--radius);
-        padding: 14px;
+        padding: 18px;
       }
-      .card + .card {
-        margin-top: 14px;
-      }
-
-      .h1 {
-        font-size: 22px;
-        font-weight: 950;
-        margin: 6px 0 8px 0;
-      }
-      .p {
-        color: var(--muted);
-        margin: 0;
-        font-size: 14px;
-        line-height: 1.5;
-      }
-
-      /* Buttons */
-      .btn {
-        width: 100%;
-        padding: 14px 14px;
-        border-radius: 999px;
-        border: none;
-        font-weight: 900;
+      .card h2 {
+        margin: 0 0 10px 0;
         font-size: 15px;
+      }
+      .card p {
+        margin: 0;
+        color: var(--muted);
+        line-height: 1.55;
+        font-size: 13px;
+      }
+
+      .btn {
+        border: 1px solid rgba(255, 255, 255, 0.15);
+        background: rgba(255, 255, 255, 0.08);
+        color: var(--text);
+        border-radius: 12px;
+        padding: 10px 14px;
         cursor: pointer;
-        margin-top: 12px;
+        font-weight: 650;
+        transition: 120ms ease;
+      }
+      .btn:hover {
+        transform: translateY(-1px);
+        background: rgba(255, 255, 255, 0.11);
       }
       .btn.primary {
-        background: linear-gradient(135deg, var(--accent1), var(--accent2));
-        color: #02110b;
+        background: linear-gradient(
+          135deg,
+          rgba(34, 197, 94, 0.28),
+          rgba(56, 189, 248, 0.18)
+        );
+        border-color: rgba(34, 197, 94, 0.35);
       }
       .btn.ghost {
-        background: rgba(148, 163, 184, 0.1);
-        color: var(--text);
-        border: 1px solid rgba(255, 255, 255, 0.1);
-      }
-      .btn:disabled {
-        opacity: 0.5;
-        cursor: not-allowed;
+        background: transparent;
       }
 
-      /* Upload */
-      .filebox {
-        display: grid;
-        gap: 10px;
-        margin-top: 12px;
-      }
-      input[type="file"] {
-        width: 100%;
-        padding: 12px;
-        border-radius: 14px;
-        border: 1px dashed rgba(255, 255, 255, 0.15);
-        background: rgba(2, 6, 23, 0.35);
-        color: var(--muted);
-      }
-
-      /* Progress */
-      .progressWrap {
-        margin-top: 12px;
-      }
-      .progressLabel {
+      .row {
         display: flex;
-        justify-content: space-between;
-        align-items: center;
-        font-size: 12px;
-        color: var(--muted);
-        margin-bottom: 8px;
-      }
-      .bar {
-        height: 10px;
-        border-radius: 999px;
-        background: rgba(148, 163, 184, 0.12);
-        overflow: hidden;
-        border: 1px solid rgba(255, 255, 255, 0.06);
-      }
-      .bar > div {
-        height: 100%;
-        width: 0%;
-        background: linear-gradient(135deg, var(--accent1), var(--accent2));
-        border-radius: 999px;
-        transition: width 220ms ease;
-      }
-
-      /* Plot */
-      canvas {
-        width: 100%;
-        height: 220px;
-        background: rgba(2, 6, 23, 0.35);
-        border-radius: 16px;
-        border: 1px solid rgba(255, 255, 255, 0.08);
-        margin-top: 10px;
-      }
-
-      /* Result */
-      .spo2 {
-        font-size: 44px;
-        font-weight: 1000;
-        letter-spacing: -0.5px;
-        margin: 6px 0 0 0;
-      }
-      .spo2 small {
-        font-size: 16px;
-        color: var(--muted);
-        font-weight: 700;
-        margin-left: 6px;
-      }
-
-      /* Footer nav */
-      .nav {
-        padding: 12px 14px;
-        border-top: 1px solid rgba(255, 255, 255, 0.06);
-        display: grid;
-        grid-template-columns: 1fr 1fr;
         gap: 10px;
-        background: rgba(2, 6, 23, 0.6);
+        align-items: center;
+        flex-wrap: wrap;
       }
 
-      .hint {
-        font-size: 12px;
-        color: var(--muted);
-        margin-top: 10px;
-      }
-      .error {
-        color: #fecaca;
+      .danger {
+        color: #ffb4b4;
         background: rgba(239, 68, 68, 0.12);
         border: 1px solid rgba(239, 68, 68, 0.25);
         padding: 10px 12px;
-        border-radius: 14px;
-        margin-top: 12px;
+        border-radius: 12px;
         white-space: pre-wrap;
+      }
+
+      .uploader {
+        margin-top: 14px;
+        padding: 16px;
+        border-radius: var(--radius);
+        border: 1px dashed rgba(255, 255, 255, 0.22);
+        background: rgba(255, 255, 255, 0.04);
+      }
+
+      input[type="file"] {
+        width: 100%;
+        padding: 10px;
+        background: rgba(0, 0, 0, 0.25);
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        border-radius: 12px;
+        color: var(--text);
+      }
+      input[type="number"] {
+        width: 110px;
+        padding: 10px;
+        background: rgba(0, 0, 0, 0.25);
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        border-radius: 12px;
+        color: var(--text);
+      }
+      label {
+        font-size: 12px;
+        color: var(--muted);
+      }
+
+      .progressWrap {
+        margin-top: 14px;
+        border-radius: 999px;
+        overflow: hidden;
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        height: 12px;
+        background: rgba(255, 255, 255, 0.05);
+      }
+      .progressBar {
+        height: 100%;
+        width: 0%;
+        background: linear-gradient(90deg, var(--accent1), var(--accent2));
+        transition: width 240ms ease;
+      }
+      .progressText {
+        margin-top: 10px;
+        color: var(--muted);
         font-size: 13px;
+      }
+
+      .spo2 {
+        font-size: 64px;
+        margin: 8px 0 0 0;
+        letter-spacing: -1.6px;
+        font-weight: 800;
+      }
+      .spo2 small {
+        font-size: 18px;
+        color: var(--muted);
+        font-weight: 700;
+      }
+
+      canvas {
+        width: 100%;
+        height: 170px;
+        border-radius: 14px;
+        background: rgba(0, 0, 0, 0.22);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+      }
+
+      .previewImg {
+        margin-top: 12px;
+        width: 100%;
+        border-radius: 14px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        background: rgba(0, 0, 0, 0.22);
+      }
+
+      .footerNote {
+        margin-top: 12px;
+        color: var(--muted2);
+        font-size: 12px;
+        line-height: 1.4;
       }
     </style>
   </head>
 
   <body>
-    <div class="phone">
-      <div class="app">
-        <div class="topbar">
-          <div class="brand">
-            <div class="title">SpO₂ Mobile Demo</div>
-            <div class="subtitle">Face video → rPPG → SpO₂ (GPU Backend)</div>
-          </div>
-          <div class="pill">
-            <span id="dev">–</span> • <span id="gpu">–</span>
-          </div>
+    <div class="app glass">
+      <header>
+        <h1>Non-contact SpO₂ Estimation (Demo)</h1>
+        <div class="pill">
+          <span class="dot"></span>
+          <span id="pillText">Checking backend…</span>
         </div>
+      </header>
 
-        <div class="pages">
-          <!-- Page 1: Landing -->
-          <section class="page active" id="page-landing">
+      <div class="pages">
+        <!-- LANDING -->
+        <section class="page active" id="page-landing">
+          <div class="grid">
             <div class="card">
-              <div class="h1">Welcome</div>
-              <p class="p">
-                This demo estimates blood oxygen saturation (SpO₂) from a face
-                video by extracting an rPPG signal and running a lightweight
-                transformer.
+              <h2>Welcome</h2>
+              <p>
+                This demo estimates SpO₂ from facial video. Upload or analyze
+                live (DroidCam).
+              </p>
+              <div class="row" style="margin-top: 16px">
+                <button class="btn primary" id="goUpload">Start</button>
+              </div>
+            </div>
+
+            <div class="card">
+              <h2>Status</h2>
+              <p id="healthText">Loading…</p>
+              <div class="row" style="margin-top: 14px">
+                <button class="btn" id="recheck">Re-check</button>
+              </div>
+              <div class="footerNote" id="healthNote"></div>
+            </div>
+          </div>
+        </section>
+
+        <!-- UPLOAD -->
+        <section class="page" id="page-upload">
+          <div class="grid">
+            <div class="card">
+              <h2>Upload a Video</h2>
+              <p>Select a short face video (good lighting) and analyze.</p>
+
+              <div class="uploader">
+                <input type="file" id="fileInput" accept="video/*" />
+                <div class="row" style="margin-top: 12px">
+                  <button class="btn primary" id="analyzeBtn">
+                    Analyze Upload
+                  </button>
+                  <button class="btn ghost" id="backBtn">Back</button>
+                </div>
+              </div>
+
+              <div
+                id="uploadErr"
+                class="danger"
+                style="display: none; margin-top: 12px"></div>
+            </div>
+
+            <div class="card">
+              <h2>Live Camera (DroidCam)</h2>
+              <p>
+                This uses the desktop webcam device. DroidCam appears as a
+                virtual webcam.
               </p>
 
-              <div class="progressWrap">
-                <div class="progressLabel">
-                  <span>Backend status</span>
-                  <span id="healthText">Checking…</span>
+              <div style="margin-top: 12px">
+                <div class="row">
+                  <div>
+                    <label>Camera index</label><br />
+                    <input
+                      type="number"
+                      id="camIndex"
+                      value="0"
+                      min="0"
+                      step="1" />
+                  </div>
+                  <div>
+                    <label>Duration (seconds)</label><br />
+                    <input
+                      type="number"
+                      id="liveDuration"
+                      value="5"
+                      min="2"
+                      step="1" />
+                  </div>
                 </div>
-                <div class="bar"><div id="healthBar"></div></div>
+
+                <div class="row" style="margin-top: 12px">
+                  <button class="btn primary" id="liveBtn">Analyze Live</button>
+                  <button class="btn" id="listCamsBtn">List Cameras</button>
+                </div>
+
+                <div
+                  id="camList"
+                  class="footerNote"
+                  style="margin-top: 10px"></div>
+                <div
+                  id="liveErr"
+                  class="danger"
+                  style="display: none; margin-top: 12px"></div>
               </div>
+            </div>
+          </div>
+        </section>
 
-              <div id="healthErr" class="error" style="display: none"></div>
+        <!-- PROCESSING -->
+        <section class="page" id="page-processing">
+          <div class="grid">
+            <div class="card">
+              <h2>Processing</h2>
+              <p>Uploading / capturing and estimating SpO₂…</p>
 
-              <button class="btn primary" id="btnStart" disabled>Start</button>
+              <div class="progressWrap">
+                <div class="progressBar" id="progressBar"></div>
+              </div>
+              <div class="progressText" id="progressText">Starting…</div>
 
-              <div class="hint">
-                Tip: Use a clear, well-lit video (≥ 3 seconds) with the forehead
-                visible.
+              <div
+                id="procErr"
+                class="danger"
+                style="display: none; margin-top: 12px"></div>
+
+              <div class="row" style="margin-top: 14px">
+                <button class="btn ghost" id="cancelBtn">Cancel</button>
               </div>
             </div>
 
             <div class="card">
-              <p class="p">
-                Note: Accuracy depends on matching the training feature
-                pipeline. This app is for demonstration + hardware feasibility.
+              <h2>Live Preview + rPPG</h2>
+              <p class="muted">
+                Live video preview from DroidCam while processing.
               </p>
-            </div>
-          </section>
 
-          <!-- Page 2: Upload -->
-          <section class="page" id="page-upload">
-            <div class="card">
-              <div class="h1">Add your video</div>
-              <p class="p">Select a face video. Then continue to processing.</p>
+              <canvas id="liveCanvas" width="900" height="240"></canvas>
+              <img
+                id="livePreview"
+                class="previewImg"
+                style="display: none"
+                alt="Live camera preview" />
 
-              <div class="filebox">
-                <input type="file" id="file" accept="video/*" />
-                <button class="btn primary" id="btnGoProcess" disabled>
-                  Continue
-                </button>
-                <button class="btn ghost" id="btnBack1">Back</button>
-              </div>
-
-              <div class="hint" id="fileHint">No file selected.</div>
-            </div>
-
-            <div class="card">
-              <div class="p">
-                Backend endpoint:
-                <span
-                  class="pill"
-                  style="display: inline-block; margin-top: 10px">
-                  <b id="backendUrlText"></b>
-                </span>
+              <div class="footerNote">
+                If you see your phone camera here, you are 100% using DroidCam.
               </div>
             </div>
-          </section>
+          </div>
+        </section>
 
-          <!-- Page 3: Processing -->
-          <section class="page" id="page-processing">
+        <!-- RESULTS -->
+        <section class="page" id="page-results">
+          <div class="grid">
             <div class="card">
-              <div class="h1">Processing</div>
-              <p class="p" id="procMsg">Uploading video and extracting rPPG…</p>
-
-              <div class="progressWrap">
-                <div class="progressLabel">
-                  <span>Progress</span>
-                  <span id="pctText">0%</span>
-                </div>
-                <div class="bar"><div id="progBar"></div></div>
+              <h2>Result</h2>
+              <p class="muted">Estimated SpO₂</p>
+              <div class="spo2">
+                <span id="spo2Value">–</span> <small>%</small>
               </div>
+              <p id="resultMeta" class="muted" style="margin-top: 10px"></p>
 
-              <canvas id="plotLive" width="1000" height="300"></canvas>
-
-              <div id="procErr" class="error" style="display: none"></div>
-
-              <button class="btn ghost" id="btnCancel">Cancel</button>
-            </div>
-          </section>
-
-          <!-- Page 4: Results -->
-          <section class="page" id="page-results">
-            <div class="card">
-              <div class="h1">Result</div>
-              <p class="p">Predicted blood oxygen saturation:</p>
-              <div class="spo2"><span id="spo2">–</span><small>%</small></div>
-
-              <div class="hint" id="resultMeta">–</div>
-
-              <button class="btn primary" id="btnNew">
-                Analyze another video
-              </button>
-              <button class="btn ghost" id="btnBack2">Back</button>
-            </div>
-
-            <div class="card">
-              <div class="h1" style="font-size: 16px; margin-bottom: 6px">
-                rPPG waveform
+              <div class="row" style="margin-top: 16px">
+                <button class="btn primary" id="newBtn">New Analysis</button>
+                <button class="btn ghost" id="homeBtn">Home</button>
               </div>
-              <p class="p">Forehead ROI (normalized, demo signal).</p>
-              <canvas id="plotFinal" width="1000" height="300"></canvas>
             </div>
-          </section>
-        </div>
 
-        <div class="nav">
-          <button class="btn ghost" id="navHome">Home</button>
-          <button class="btn ghost" id="navInfo">Info</button>
-        </div>
+            <div class="card">
+              <h2>rPPG signal</h2>
+              <p class="muted">Filtered green-channel signal (demo).</p>
+              <canvas id="finalCanvas" width="900" height="240"></canvas>
+            </div>
+          </div>
+        </section>
       </div>
     </div>
 
     <script>
-      // ======= CONFIG =======
-      // Your FastAPI backend (health + analyze_video)
       const BACKEND = "http://localhost:8001";
 
-      // ======= UI helpers =======
       const pages = ["landing", "upload", "processing", "results"];
       function showPage(name) {
         for (const p of pages) {
           const el = document.getElementById("page-" + p);
           el.classList.remove("active", "left");
         }
-        // Make simple slide feel: previous becomes left
-        // (not perfect history, but good enough)
-        document.getElementById("page-" + name).classList.add("active");
-      }
-
-      function setTopPill(device, gpu) {
-        document.getElementById("dev").textContent = device || "–";
-        document.getElementById("gpu").textContent = gpu || "–";
-      }
-
-      function fmtGPUName(j) {
-        if (!j) return "–";
-        if (j.cuda) return j.gpu_name || "CUDA GPU";
-        return "CPU";
-      }
-
-      // ======= Health check =======
-      const btnStart = document.getElementById("btnStart");
-      const healthText = document.getElementById("healthText");
-      const healthBar = document.getElementById("healthBar");
-      const healthErr = document.getElementById("healthErr");
-      const backendUrlText = document.getElementById("backendUrlText");
-      backendUrlText.textContent = BACKEND;
-
-      async function health() {
-        healthErr.style.display = "none";
-        healthText.textContent = "Checking…";
-        healthBar.style.width = "25%";
-        try {
-          const r = await fetch(BACKEND + "/health");
-          const j = await r.json();
-          healthText.textContent = "Connected";
-          healthBar.style.width = "100%";
-          setTopPill(j.device || "ok", fmtGPUName(j));
-          btnStart.disabled = false;
-          return true;
-        } catch (e) {
-          healthText.textContent = "Offline";
-          healthBar.style.width = "0%";
-          setTopPill("–", "–");
-          btnStart.disabled = true;
-          healthErr.style.display = "block";
-          healthErr.textContent =
-            "Backend not reachable.\n\n" +
-            "1) Start backend:\n" +
-            "   python -m uvicorn backend:app --host 0.0.0.0 --port 8001\n\n" +
-            "2) Start frontend on 8000:\n" +
-            "   python -m http.server 8000\n\n" +
-            "Error: " +
-            e.message;
-          return false;
+        for (const p of pages) {
+          const el = document.getElementById("page-" + p);
+          if (p === name) {
+            el.classList.add("active");
+            break;
+          } else {
+            el.classList.add("left");
+          }
         }
       }
 
-      // Run on load
-      health();
+      function setProgress(pct, text) {
+        document.getElementById("progressBar").style.width = pct + "%";
+        document.getElementById("progressText").textContent = text;
+      }
 
-      // ======= Upload page logic =======
-      const fileEl = document.getElementById("file");
-      const btnGoProcess = document.getElementById("btnGoProcess");
-      const fileHint = document.getElementById("fileHint");
+      function setTopPill(text) {
+        document.getElementById("pillText").textContent = text;
+      }
 
-      fileEl.addEventListener("change", () => {
-        const f = fileEl.files[0];
-        if (!f) {
-          btnGoProcess.disabled = true;
-          fileHint.textContent = "No file selected.";
-          return;
-        }
-        btnGoProcess.disabled = false;
-        fileHint.textContent = `Selected: ${f.name}`;
-      });
-
-      // ======= Processing logic =======
-      const procMsg = document.getElementById("procMsg");
-      const pctText = document.getElementById("pctText");
-      const progBar = document.getElementById("progBar");
-      const procErr = document.getElementById("procErr");
-      const btnCancel = document.getElementById("btnCancel");
-
-      const liveCanvas = document.getElementById("plotLive");
+      const liveCanvas = document.getElementById("liveCanvas");
+      const finalCanvas = document.getElementById("finalCanvas");
       const liveCtx = liveCanvas.getContext("2d");
-
-      const finalCanvas = document.getElementById("plotFinal");
       const finalCtx = finalCanvas.getContext("2d");
-
-      const spo2El = document.getElementById("spo2");
-      const resultMeta = document.getElementById("resultMeta");
-
-      let abortCtrl = null;
-      let animTimer = null;
 
       function clearPlot(ctx, canvas) {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
-        // midline
-        ctx.strokeStyle = "rgba(148,163,184,0.25)";
-        ctx.lineWidth = 1;
-        ctx.beginPath();
-        ctx.moveTo(0, canvas.height / 2);
-        ctx.lineTo(canvas.width, canvas.height / 2);
-        ctx.stroke();
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
       }
 
-      function drawWave(ctx, canvas, wave, upto = null) {
-        clearPlot(ctx, canvas);
-        if (!wave || wave.length < 5) return;
+      function drawWave(ctx, canvas, arr) {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.fillStyle = "rgba(0,0,0,0.22)";
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-        const W = canvas.width,
-          H = canvas.height;
-        const N =
-          upto == null ? wave.length : Math.max(5, Math.min(wave.length, upto));
+        if (!arr || arr.length < 2) return;
+
+        const W = canvas.width;
+        const H = canvas.height;
 
         let min = Infinity,
           max = -Infinity;
-        for (let i = 0; i < N; i++) {
-          const v = wave[i];
+        for (const v of arr) {
           if (v < min) min = v;
           if (v > max) max = v;
         }
         const range = max - min || 1;
 
-        ctx.strokeStyle = "#22c55e";
-        ctx.lineWidth = 2;
         ctx.beginPath();
-        for (let i = 0; i < N; i++) {
-          const x = (i / (N - 1)) * W;
-          const y = H - ((wave[i] - min) / range) * H;
+        for (let i = 0; i < arr.length; i++) {
+          const x = (i / (arr.length - 1)) * (W - 20) + 10;
+          const y = H - 10 - ((arr[i] - min) / range) * (H - 20);
           if (i === 0) ctx.moveTo(x, y);
           else ctx.lineTo(x, y);
         }
+        ctx.lineWidth = 2;
+        ctx.strokeStyle = "rgba(56,189,248,0.9)";
         ctx.stroke();
-
-        ctx.fillStyle = "rgba(148,163,184,0.9)";
-        ctx.font = "14px system-ui";
-        ctx.fillText("rPPG (normalized)", 12, 22);
       }
 
-      function setProgress(pct, msg) {
-        const p = Math.max(0, Math.min(100, pct));
-        pctText.textContent = `${p.toFixed(0)}%`;
-        progBar.style.width = `${p}%`;
-        if (msg) procMsg.textContent = msg;
+      const healthText = document.getElementById("healthText");
+      const healthNote = document.getElementById("healthNote");
+      const uploadErr = document.getElementById("uploadErr");
+      const liveErr = document.getElementById("liveErr");
+      const procErr = document.getElementById("procErr");
+      const spo2El = document.getElementById("spo2Value");
+      const resultMeta = document.getElementById("resultMeta");
+
+      let abortCtrl = null;
+      let animTimer = null;
+
+      function fmt(n) {
+        if (n === undefined || n === null) return "–";
+        return Number(n).toFixed(3);
       }
 
-      async function analyzeVideo(file) {
+      // ---- Live MJPEG preview controls ----
+      function startLivePreview(camIndex) {
+        const img = document.getElementById("livePreview");
+        img.style.display = "block";
+        img.src = `${BACKEND}/mjpeg?cam=${camIndex}`;
+      }
+
+      function stopLivePreview() {
+        const img = document.getElementById("livePreview");
+        img.style.display = "none";
+        img.src = "";
+      }
+
+      async function checkHealth() {
+        try {
+          const r = await fetch(BACKEND + "/health");
+          const out = await r.json();
+          if (!out.ok) throw new Error("Backend not ok");
+
+          const gpu = out.gpu_name ? out.gpu_name : out.cuda ? "CUDA" : "CPU";
+          const ram = fmt(out.ram_gb);
+          const vramA = fmt(out.gpu_mem_allocated_gb);
+          const vramR = fmt(out.gpu_mem_reserved_gb);
+
+          healthText.textContent = `OK • ${gpu} • RAM=${ram} GB • VRAM alloc=${vramA} GB • VRAM res=${vramR} GB`;
+          healthNote.textContent = `max_t=${out.max_t} • n_feats=${out.n_feats}`;
+
+          setTopPill(`Backend OK • RAM ${ram} GB`);
+        } catch (e) {
+          healthText.textContent =
+            "Backend not reachable. Start backend.py on port 8001.";
+          healthNote.textContent = "";
+          setTopPill("Backend error");
+        }
+      }
+
+      async function analyzeUpload() {
+        stopLivePreview();
+        uploadErr.style.display = "none";
         procErr.style.display = "none";
-        spo2El.textContent = "–";
-        clearPlot(liveCtx, liveCanvas);
-        clearPlot(finalCtx, finalCanvas);
 
-        // Small staged progress for “app feel”
-        setProgress(5, "Preparing upload…");
+        const fileInput = document.getElementById("fileInput");
+        const file = fileInput.files && fileInput.files[0];
+        if (!file) {
+          uploadErr.style.display = "block";
+          uploadErr.textContent = "Please select a video file first.";
+          return;
+        }
 
+        showPage("processing");
+        setProgress(3, "Starting…");
         abortCtrl = new AbortController();
 
-        // Start a smooth fake progress up to ~70% while the backend runs
-        let pct = 5;
+        let wave = [];
+        let t = 0;
         animTimer = setInterval(() => {
-          // ease up to 70%
-          if (pct < 70) {
-            pct += (70 - pct) * 0.06 + 0.6;
-            setProgress(pct, "Extracting rPPG waveform…");
-            // draw placeholder “live” wave
-            const n = 220;
-            const wave = Array.from(
-              { length: n },
-              (_, i) => Math.sin(i * 0.2) * 0.6 + (Math.random() - 0.5) * 0.35
-            );
-            drawWave(liveCtx, liveCanvas, wave, Math.floor((pct / 70) * n));
-          }
-        }, 120);
+          t += 1;
+          wave.push(Math.sin(t / 6) * 0.8 + (Math.random() - 0.5) * 0.25);
+          if (wave.length > 180) wave.shift();
+          drawWave(liveCtx, liveCanvas, wave);
+        }, 80);
 
         try {
           setProgress(12, "Uploading video…");
           const form = new FormData();
           form.append("file", file);
 
-          const t0 = performance.now();
           const resp = await fetch(BACKEND + "/analyze_video", {
             method: "POST",
             body: form,
@@ -604,102 +612,149 @@
           });
 
           const out = await resp.json();
-          const t1 = performance.now();
+          if (out.error) throw new Error(out.error);
 
-          if (out.error) {
-            throw new Error(out.error);
-          }
-
-          // Stop fake progress and finish smoothly
           clearInterval(animTimer);
           animTimer = null;
-
-          setTopPill(
-            out.device || "ok",
-            out.cuda ? out.gpu_name || "CUDA" : "CPU"
-          );
-          setProgress(85, "Finalizing prediction…");
-
-          // Animate drawing the real waveform in
-          const rppg = out.rppg || [];
-          let i = 10;
-          const drawAnim = setInterval(() => {
-            i += 12;
-            drawWave(liveCtx, liveCanvas, rppg, i);
-            if (i >= rppg.length) {
-              clearInterval(drawAnim);
-            }
-          }, 16);
 
           setProgress(100, "Done.");
           spo2El.textContent = Number(out.spo2).toFixed(1);
 
-          const ms = (t1 - t0).toFixed(0);
-          resultMeta.textContent = `Backend: ${out.device} • GPU: ${
-            out.gpu_name || (out.cuda ? "CUDA" : "CPU")
-          } • Response: ${ms} ms`;
+          const gpu = out.gpu_name || (out.cuda ? "CUDA" : "CPU");
+          resultMeta.textContent = `Upload • GPU: ${gpu} • RAM ${fmt(
+            out.ram_gb
+          )} GB • VRAM alloc ${fmt(out.gpu_mem_allocated_gb)} GB (res ${fmt(
+            out.gpu_mem_reserved_gb
+          )} GB)`;
 
-          // Final plot
-          drawWave(finalCtx, finalCanvas, rppg);
-
+          drawWave(finalCtx, finalCanvas, out.rppg || []);
           showPage("results");
+          checkHealth();
         } catch (e) {
           clearInterval(animTimer);
           animTimer = null;
           setProgress(0, "Failed.");
           procErr.style.display = "block";
           procErr.textContent =
-            "Processing failed.\n\n" +
-            "Common fixes:\n" +
-            "- Ensure backend is running on port 8001\n" +
-            "- Video must be clear (≥3 seconds)\n" +
-            "- Ensure weights + feat_mu/feat_std exist\n\n" +
-            "Error: " +
-            e.message;
-        } finally {
-          abortCtrl = null;
+            "Upload processing failed.\n\nError: " + e.message;
+          checkHealth();
         }
       }
 
-      // ======= Buttons / navigation =======
-      document.getElementById("btnStart").onclick = async () => {
-        const ok = await health();
-        if (ok) showPage("upload");
-      };
+      async function analyzeLive() {
+        const cam = Number(document.getElementById("camIndex").value || 0);
+        const duration = Number(
+          document.getElementById("liveDuration").value || 5
+        );
 
-      document.getElementById("btnBack1").onclick = () => showPage("landing");
+        liveErr.style.display = "none";
+        procErr.style.display = "none";
 
-      document.getElementById("btnGoProcess").onclick = async () => {
-        const ok = await health();
-        if (!ok) {
-          showPage("landing");
-          return;
-        }
-        const f = fileEl.files[0];
-        if (!f) return;
         showPage("processing");
-        analyzeVideo(f);
+        setProgress(5, "Capturing live video…");
+        abortCtrl = new AbortController();
+
+        // Start live MJPEG preview (this is the proof of DroidCam usage)
+        startLivePreview(cam);
+
+        let wave = [];
+        let t = 0;
+        animTimer = setInterval(() => {
+          t += 1;
+          wave.push(Math.sin(t / 6) * 0.8 + (Math.random() - 0.5) * 0.25);
+          if (wave.length > 180) wave.shift();
+          drawWave(liveCtx, liveCanvas, wave);
+        }, 80);
+
+        try {
+          const resp = await fetch(
+            `${BACKEND}/analyze_live?cam=${cam}&duration=${duration}`,
+            {
+              signal: abortCtrl.signal,
+            }
+          );
+          const out = await resp.json();
+          if (out.error) throw new Error(out.error);
+
+          clearInterval(animTimer);
+          animTimer = null;
+          stopLivePreview();
+
+          setProgress(100, "Done.");
+          spo2El.textContent = Number(out.spo2).toFixed(1);
+
+          const gpu = out.gpu_name || (out.cuda ? "CUDA" : "CPU");
+          resultMeta.textContent = `Live • Cam ${out.cam_index} • ${
+            out.duration
+          }s • GPU: ${gpu} • RAM ${fmt(out.ram_gb)} GB • VRAM alloc ${fmt(
+            out.gpu_mem_allocated_gb
+          )} GB (res ${fmt(out.gpu_mem_reserved_gb)} GB)`;
+
+          drawWave(finalCtx, finalCanvas, out.rppg || []);
+          showPage("results");
+          checkHealth();
+        } catch (e) {
+          clearInterval(animTimer);
+          animTimer = null;
+          stopLivePreview();
+
+          setProgress(0, "Failed.");
+          procErr.style.display = "block";
+          procErr.textContent =
+            "Live processing failed.\n\nError: " + e.message;
+          checkHealth();
+        }
+      }
+
+      async function listCameras() {
+        liveErr.style.display = "none";
+        const camList = document.getElementById("camList");
+        camList.textContent = "Checking cameras…";
+        try {
+          const r = await fetch(BACKEND + "/list_cameras?max_index=10");
+          const out = await r.json();
+          camList.textContent = `Available camera indices: ${JSON.stringify(
+            out.cameras || []
+          )}`;
+          checkHealth();
+        } catch (e) {
+          camList.textContent = "Failed to list cameras. Is backend running?";
+        }
+      }
+
+      // Buttons
+      document.getElementById("goUpload").onclick = () => showPage("upload");
+      document.getElementById("backBtn").onclick = () => {
+        stopLivePreview();
+        showPage("landing");
+      };
+      document.getElementById("homeBtn").onclick = () => {
+        stopLivePreview();
+        showPage("landing");
+      };
+      document.getElementById("newBtn").onclick = () => {
+        stopLivePreview();
+        showPage("upload");
       };
 
-      document.getElementById("btnCancel").onclick = () => {
+      document.getElementById("recheck").onclick = checkHealth;
+      document.getElementById("analyzeBtn").onclick = analyzeUpload;
+      document.getElementById("liveBtn").onclick = analyzeLive;
+      document.getElementById("listCamsBtn").onclick = listCameras;
+
+      document.getElementById("cancelBtn").onclick = () => {
         if (abortCtrl) abortCtrl.abort();
+        abortCtrl = null;
         if (animTimer) clearInterval(animTimer);
         animTimer = null;
+        stopLivePreview();
         showPage("upload");
       };
 
-      document.getElementById("btnNew").onclick = () => {
-        fileEl.value = "";
-        btnGoProcess.disabled = true;
-        fileHint.textContent = "No file selected.";
-        showPage("upload");
-      };
-
-      document.getElementById("btnBack2").onclick = () => showPage("upload");
-
-      // Bottom nav (simple)
-      document.getElementById("navHome").onclick = () => showPage("upload");
-      document.getElementById("navInfo").onclick = () => showPage("landing");
+      // Boot
+      checkHealth();
+      clearPlot(liveCtx, liveCanvas);
+      clearPlot(finalCtx, finalCanvas);
     </script>
   </body>
 </html>
